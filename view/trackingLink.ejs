@@ -1,0 +1,169 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style type="text/css">
+    body {
+      margin: 0;
+      background-color: #cccccc;
+    }
+
+    table {
+      border-spacing: 0;
+    }
+
+    td {
+      padding: 0;
+    }
+
+    img {
+      border: 0;
+    }
+
+    .wrapper {
+      width: 100%;
+      table-layout: fixed;
+      background-color: #cccccc;
+      padding-bottom: 60px;
+    }
+
+    .main {
+      background-color: #ffffff;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 600px;
+      border-spacing: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #171a1b;
+    }
+
+    .two-columns {
+      text-align: center;
+      font-size: 0;
+    }
+
+    .two-columns .column {
+      width: 100%;
+      max-width: 300px;
+      display: inline-block;
+      vertical-align: top;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <center class="wrapper">
+    <table class="main" width="100%">
+      <!-- TOP BORDER -->
+
+      <tr>
+        <td height="8" style="
+              background-color: #171a1b;
+              padding: 10px 0;
+              width: 100%;
+              text-align: center;
+            ">
+          <!-- <img src="dow.jpeg" alt="" width="74px" /> -->
+        </td>
+      </tr>
+
+      <!-- LOGO SECTION -->
+
+      <tr>
+        <td style="width: 100%; text-align: center">
+          <h1 style="margin-top: 30px">Hello <%= name %></h1>
+        </td>
+      </tr>
+
+      
+
+      <tr>
+        <td style="width: 100%">
+          <h3 style="color: #747474; margin: 10px 30px; font-weight: 100">
+            <%= message %>
+          </h3>
+          <br>
+          <h3 style="color: #747474; margin: 10px 30px; font-weight: 100">
+            Track Order using below button:
+            <br>
+            <a href="<%= link %>">
+              <button>Track Now</button>
+            </a>
+
+          </h3>
+            
+        </td>
+      </tr>
+
+
+      <tr>
+        <td style="width: 100%">
+          <h3 style="color: #747474; margin: 30px 20px 0 30px; font-weight: 100">
+            Thanks!
+          </h3>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="width: 100%">
+          <h3 style="color: #747474; margin: 0 20px 30px 30px; font-weight: 100">
+            Go Trucking
+          </h3>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="width: 100%">
+          <h3 style="
+                color: #747474;
+                margin: 0 225px 15px 225px;
+                border: 1px solid #d4d4d4;
+                width: 150px;
+                text-align: center;
+              "></h3>
+        </td>
+      </tr>
+
+      <!-- SOCIAL ICONS -->
+      <!-- <tr>
+        <td style="width: 100%; text-align: center">
+          <a href="https://twitter.com/FintechSaudi" target="_blank" style="text-decoration: none">
+            <img src="https://hubportalapi.fintechsaudi.com/uploads/images/twitter.png" alt="twitter"
+              style="width: 25px; margin: 20px 25px 50px 0" />
+          </a>
+          <a href="https://www.youtube.com/@FintechSaudi" target="_blank" style="text-decoration: none">
+            <img src="https://hubportalapi.fintechsaudi.com/uploads/images/youtube.svg" alt="youtube"
+              style="width: 25px; margin: 20px 25px 50px 0" />
+          </a>
+          <a href="https://www.linkedin.com/company/fintech-saudi" target="_blank">
+            <img src="https://hubportalapi.fintechsaudi.com/uploads/images/linkedin.png" alt="linkedin"
+              style="width: 25px; margin-bottom: 50px" />
+          </a>
+        </td>
+      </tr> -->
+
+      <!-- FOOTER -->
+
+
+      <tr>
+        <td height="8" style="
+              background-color: #171a1b;
+              padding-bottom: 10px;
+              width: 100%;
+              text-align: center;
+            ">
+          <p style="color: #fff; font-size: 16px; margin: 0; font-weight: 100">
+            Go Trucking - All Rights Reserved
+          </p>
+        </td>
+      </tr>
+    </table>
+  </center>
+</body>
+
+</html>
