@@ -26,12 +26,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const firebaseDB = getDatabase(app);  
 
-const servercCredentials = require("./fcm.json")
+// const servercCredentials = require("./fcm.json")
 
-admin.initializeApp({
-    credential: admin.credential.cert(servercCredentials),
-    databaseURL: "https://gotruckingnew-d3860-default-rtdb.firebaseio.com"
-});
+// admin.initializeApp({
+//     credential: admin.credential.cert(servercCredentials),
+//     databaseURL: "https://gotruckingnew-d3860-default-rtdb.firebaseio.com"
+// });
 
 
 // Admin Notifications
