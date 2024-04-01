@@ -78,9 +78,31 @@ const deleteOrder = asyncHandler(async (req, res) => {
 // Route: GET /api/orders/all-orders
 // Access: Admin
 const getAllOrders = asyncHandler(async (req, res) => {
+
+  const { orderType } = req.query;
+  let matchCondition = { isDeleted: false };
+
+  // Dynamically set the match condition based on the orderType query parameter
+  switch (orderType) {
+    case 'unassign':
+      matchCondition.status = 'unassign';
+      break;
+    case 'assign':
+      matchCondition.status = 'assign';
+      break;
+    case 'in-progress':
+      matchCondition.deliveryStatus = 'in-progress';
+      break;
+    case 'delivered':
+      matchCondition.deliveryStatus = 'delivered';
+      break;
+    // No default case to allow fetching all non-deleted orders if no orderType is specified
+  }
+
+
   try {
     const orders = await OrderModel.aggregate([
-      { $match: { isDeleted: false } },
+      { $match: matchCondition },
       {
         $lookup: {
           from: "users", // Assuming 'users' is the collection name
@@ -124,8 +146,8 @@ const getAllOrders = asyncHandler(async (req, res) => {
             ]
           },
           "customerName": "$doc.customer.name",
-          "status": "$doc.products.status",
-          "deliveryStatus": "$doc.products.deliveryStatus",
+          "status": "$doc.status",
+          "deliveryStatus": "$doc.deliveryStatus",
           "orderNo": "$doc.products.orderNo"
         }
       },
@@ -143,6 +165,13 @@ const getAllOrders = asyncHandler(async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 });
+
+
+
+
+
+
+
 
 
 

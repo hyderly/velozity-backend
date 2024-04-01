@@ -12,8 +12,6 @@ const ProductSchema = new mongoose.Schema({
     weight: { type: Number },
     images: [{ type: String }], 
     qrCode: { type: String },
-    status: { type: String, required: true },
-    deliveryStatus: { type: String, required: true }
 });
 
 const CustomerSchema = new mongoose.Schema({
@@ -50,6 +48,16 @@ const OrderSchema = new mongoose.Schema({
     orderNo: {
       type: String,
       required: true
+    },
+    status: { 
+      type: String,
+      enum: ['unassign', 'assign'],
+      default: 'unassign'
+    },
+    deliveryStatus: {
+      type: String,
+      enum: ['pending', 'in-progress', 'delivered'],
+      default: 'pending'
     }
 }, { timestamps: true });
 
