@@ -149,7 +149,12 @@ const getAllOrders = asyncHandler(async (req, res) => {
           "customerName": "$doc.customer.name",
           "status": "$doc.status",
           "deliveryStatus": "$doc.deliveryStatus",
-          "orderNo": "$doc.products.orderNo"
+          "orderNo": "$doc.products.orderNo",
+          "deliverConfirmDoc": "$doc.deliverConfirmDoc",
+          "reciverName": "$doc.reciverName",
+          "deliveredDate": "$doc.deliveredDate",
+          "address": "$doc.address"
+
         }
       },
       {

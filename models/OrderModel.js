@@ -58,7 +58,10 @@ const OrderSchema = new mongoose.Schema({
       type: String,
       enum: ['pending', 'accepted', 'rejected', 'in-progress', 'delivered'],
       default: 'pending'
-    }
+    },
+    reciverName: String,
+    deliveredDate: Date,
+    address: String,
 }, { timestamps: true });
 
 const OrderModel = mongoose.model("Order", OrderSchema);

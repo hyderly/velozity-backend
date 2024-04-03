@@ -365,15 +365,9 @@ const getAdmins = asyncHandler(async (req, res) => {
 // Access: Private
 const getRiders = asyncHandler(async (req, res) => {
 
-  let query = {};
   
-  if (req.user.userType === "super-admin") {
-    query = { userType: "rider" };
-  } else {
-    query = { userType: "rider", createdBy: req.user._id };
-  }
   
-  const riders = await UserModel.find(query);
+  const riders = await UserModel.find({ userType: "partner" });
 
   if (!riders) {
     res

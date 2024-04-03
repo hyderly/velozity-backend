@@ -163,6 +163,11 @@ const userSchema = new mongoose.Schema({
     enum: ['super-admin', 'admin', 'partner']
   },
 
+  status: {
+    type: String,
+    enum: ['available', 'not-available']
+  },
+
   userVerifed:{
     type: Boolean,
     default: false,

@@ -48,7 +48,7 @@ router.post("/rider/resend-otp", protectRoute, resendVerificationOTP);
 router.get("/admins", superAdminProtectRoute, getAdmins);
 router.get("/recent-customers", superAdminProtectRoute, getRecentCustomers);
 router.get("/plan-counts", superAdminProtectRoute, getPlansCount);
-router.get("/riders", protectRoute, getRiders);
+router.get("/riders", adminProtectRoute, getRiders);
 router.delete("/:userID", protectRoute, DeleteUser);       
 router.post("/delete-account", protectRoute, DeleteOwnAccount);       
 router.post("/detele-users", protectRoute, DeleteMultipleUsers);       
