@@ -11,12 +11,14 @@ const {
   getOrderById,
   updateOrder,
   deleteOrder,
-  getAllOrders
+  getAllOrders,
+  getMyOrders
 } = require("../controllers/orderControllers.js");
 
 
 router.post("/create", adminProtectRoute, createOrder);
 router.get("/all-orders", adminProtectRoute, getAllOrders)
+router.get("/all", protectRoute, getMyOrders)
 router.get("/:orderId", protectRoute, getOrderById);
 router.patch("/:orderId", adminProtectRoute, updateOrder);
 router.patch("/delete/:orderId", adminProtectRoute, deleteOrder);

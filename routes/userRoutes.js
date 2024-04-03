@@ -7,20 +7,17 @@ const {protectRoute, adminProtectRoute, superAdminProtectRoute} = require("../mi
 // Controllers
 const {
   adminRegister,
-  customerRegister,
-  getCustomers,
   DeleteUser,
   DeleteMultipleUsers,
-  contractorRegister,
   riderRegister,
-  getContractors,
   getRiders,
   getCustomer,
   getContractor,
   sendUserInvitation,
-  verifyUserOTP,
   getCustomerByName,
   updatePassword,
+  verifyRiderEmail,
+  resendVerificationOTP,
 
   authUser,
   authRiderUser,
@@ -45,11 +42,9 @@ const {
 
 
 router.post("/admin-register", adminRegister);
-router.post("/customer-register", protectRoute, customerRegister);
-router.post("/contractor-register", protectRoute, contractorRegister);
-router.post("/rider-register", protectRoute, riderRegister);
-router.get("/customers", protectRoute, getCustomers);
-router.get("/contractors", protectRoute, getContractors);
+router.post("/rider/register", riderRegister);
+router.post("/rider/otp-verify", protectRoute, verifyRiderEmail);
+router.post("/rider/resend-otp", protectRoute, resendVerificationOTP);
 router.get("/admins", superAdminProtectRoute, getAdmins);
 router.get("/recent-customers", superAdminProtectRoute, getRecentCustomers);
 router.get("/plan-counts", superAdminProtectRoute, getPlansCount);
@@ -64,8 +59,6 @@ router.get("/single-customer/:name", protectRoute, getCustomerByName);
 router.get("/contractor/:vat", protectRoute, getContractor); 
 
 // Open Requests
-router.post("/customer-register-user",  customerRegister);
-router.post("/contractor-register-user",  contractorRegister);
 router.post("/rider-register-user",  riderRegister);
 
 
@@ -81,15 +74,14 @@ router.get("/", protectRoute, getAllUsers);
 router.get("/riders", protectRoute, getAllRiders);
 router.put("/emailverify/:verifytoken", verifyUser);
 router.post("/login", authUser);
-router.post("/login-rider", authRiderUser);
+router.post("/rider/login", authRiderUser);
 router.post("/forgotpassword", forgotPassword);
-router.patch("/resetpassword", resetpassword);
+router.post("/resetpassword", resetpassword);
 router.get("/profile", protectRoute, getPorfile);
 router.patch("/myProfile", protectRoute, updateOwnProfile);
 router.patch("/registerFCMToken", protectRoute, registerFCMToken);    
 router.patch("/updateRiderStatus/:userId", protectRoute, updateRiderStatus);
 router.patch("/RejectRider/:userId", protectRoute, RejectRider);
-router.patch("/otpVerify", protectRoute, verifyUserOTP);
 
 
 

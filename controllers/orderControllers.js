@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const { ObjectId } = require('mongodb');
 
 // Import model
 const OrderModel = require("../models/OrderModel");
@@ -167,6 +168,78 @@ const getAllOrders = asyncHandler(async (req, res) => {
 });
 
 
+// Request: GET
+// Route: GET /api/orders/all-orders
+// Access: Admin
+const getMyOrders = asyncHandler(async (req, res) => {
+
+  console.log("req.user.id", req.user.id)
+
+  let matchCondition = { isDeleted: false, partner: ObjectId(req.user.id) };
+
+
+  try {
+    const orders = await OrderModel.aggregate([
+      { $match: matchCondition },
+      {
+        $lookup: {
+          from: "users", // Assuming 'users' is the collection name
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "createdBy_info"
+        }
+      },
+      {
+        $lookup: {
+          from: "users", // Assuming 'users' is the collection name
+          localField: "partner",
+          foreignField: "_id",
+          as: "partner_info"
+        }
+      },
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$_id",
+          doc: { $first: "$$ROOT" },
+          totalProducts: { $sum: 1 },
+          totalWeight: { $sum: "$products.weight" },
+          totalQuantity: { $sum: "$products.quantity" }
+        }
+      },
+      {
+        $addFields: {
+          
+          "createdByName": {
+            $concat: [
+              { $arrayElemAt: ["$doc.createdBy_info.firstName", 0] },
+              " ",
+              { $arrayElemAt: ["$doc.createdBy_info.lastName", 0] }
+            ]
+          },
+          "customerName": "$doc.customer.name",
+          "customerEmail": "$doc.customer.email",
+          "status": "$doc.status",
+          "deliveryStatus": "$doc.deliveryStatus",
+          "orderNo": "$doc.products.orderNo"
+        }
+      },
+      {
+        $project: {
+          "doc": 0,
+          "partner_info": 0,
+          "createdBy_info": 0
+        }
+      }
+    ]);
+
+    res.status(200).json({ success: true, data: orders });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+
 
 
 
@@ -181,7 +254,8 @@ module.exports = {
   getOrderById,
   updateOrder,
   deleteOrder,
-  getAllOrders
+  getAllOrders,
+  getMyOrders
 }
 
 

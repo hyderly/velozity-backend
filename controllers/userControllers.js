@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const generateWebToken = require("../utils/generateToken.js");
-const {sendInvitation, sendCreds, sendOTP} = require("../utils/sendMail.js");
+const {sendInvitation, sendCreds, sendOTP, sendVerificationOTP} = require("../utils/sendMail.js");
 const crypto = require("crypto");
 const sanitize = require("mongo-sanitize");
 var generator = require('generate-password');
@@ -48,9 +48,11 @@ const adminRegister = asyncHandler(async (req, res) => {
 
   // Create new user
   const user = await UserModel.create({...req.body, password: adminPassword, userType: "admin"});
-
   user.save();
+  
 
+
+ 
   if(user){
 
     return res
@@ -65,209 +67,126 @@ const adminRegister = asyncHandler(async (req, res) => {
 
 
 
-
 // Request: POST
-// Route: POST /api/users/customer-register
+// Route: POST /api/users/rider/rider-register
 // Access: Public
-// Customer Registeration
-
-const customerRegister = asyncHandler(async (req, res) => {
-  const {
-    email,
-    mobileNumber,
-  } = req.body;
-
-
-  var randomPassword = generator.generate({
-    length: 10,
-    numbers: true
-  });
-
-
-  // Check if user is exist
-  const isExists = await UserModel.findOne({ email, userType: "customer" });
-  const isExistsByPhone = await UserModel.findOne({ mobileNumber, userType: "customer" });
-
-
-
-  if (isExists || isExistsByPhone) {
-    throw new Error("Customer Already exist with this email address or phone number");
-  }
-
-  // Create new user
-  const user = await UserModel.create({...req.body, password: randomPassword, userType: "customer", createdBy: req?.user?._id ? req.user._id : req.body.createdBy});
-
-  user.save();
-
-  if(user){
-
-    sendCreds({
-      email: req.body.email,
-      name: req.body.firstName ? req.body.firstName : req.body.fullName,
-      link: process.env.FRONTEND_URL,
-      userEmail: req.body.email,
-      userPassword: randomPassword,
-      message: "Your Customer account has been created please check link to access the system",
-      subject: `${req.body.firstName ? req.body.firstName : req.body.fullName} - Login Creds.`,
-    });
-
-
-    return res
-    .status(200)
-    .json({ success: true, message: "Customer Register Successfully", data: user });
-  }else{
-    res.status(400);
-    throw new Error("Customer Register Failed");
-    
-  }
-});
-
-
-// Request: POST
-// Route: POST /api/users/contractor-register
-// Access: Public
-// Contractor Registeration
-
-const contractorRegister = asyncHandler(async (req, res) => {
-  const {
-    email,
-    mobileNumber,
-  } = req.body;
-
-  var randomPassword = generator.generate({
-    length: 10,
-    numbers: true
-  });
-
-
-  // Check if user is exist
-  const isExists = await UserModel.findOne({ email, userType: "contractor" });
-  const isExistsByPhone = await UserModel.findOne({ mobileNumber, userType: "contractor" });
-
-
-
-  if (isExists || isExistsByPhone) {
-    throw new Error("Contractor Already exist with this email address or phone number");
-  }
-
-  // Create new user
-  const user = await UserModel.create({...req.body, password: randomPassword, userType: "contractor", createdBy: req?.user?._id ? req.user._id : req.body.createdBy});
-
-  user.save();
-
-  if(user){
-
-    sendCreds({
-      email: req.body.email,
-      name: req.body.firstName ? req.body.firstName : req.body.fullName,
-      link: process.env.FRONTEND_URL,
-      userEmail: req.body.email,
-      userPassword: randomPassword,
-      message: "Your Contracttor account has been created please check link to access the system",
-      subject: `${req.body.firstName ? req.body.firstName : req.body.fullName} - Login Creds.`,
-    });
-
-
-    return res
-    .status(200)
-    .json({ success: true, message: "Contractor Register Successfully", data: user  });
-  }else{
-    res.status(400);
-    throw new Error("Contractor Register Failed");
-    
-  }
-});
-
-
-// Request: POST
-// Route: POST /api/users/rider-register
-// Access: Public
-// Rider Registeration
+// Rider Register
 
 const riderRegister = asyncHandler(async (req, res) => {
   const {
-    email,
-    mobileNumber,
-    fullName,
-    gender
+    email
   } = req.body;
-
-  var randomPassword = generator.generate({
-    length: 10,
-    numbers: true
-  });
 
 
   // Check if user is exist
-  const isExists = await UserModel.findOne({ email, userType: "rider" });
-  const isExistsByPhone = await UserModel.findOne({ mobileNumber, userType: "rider" });
+  const isExists = await UserModel.findOne({ email, userType: "partner" });
 
 
-
-  if (isExists || isExistsByPhone) {
-    throw new Error("Driver Already exist with this email address or phone number");
+  if (isExists) {
+    throw new Error("Driver Already exist with this email address");
   }
 
   // Create new user
-  const user = await UserModel.create({...req.body, password: req.body?.password ? req.body?.password : randomPassword, userType: "rider", createdBy: req?.user?._id ? req.user._id : req.body.createdBy});
+  const user = await UserModel.create({...req.body, userType: "partner" });
 
+    
+  const otp = await user.getVerifyToken();
+  
   user.save();
 
   if(user){
-    sendCreds({
-      email: req.body.email,
-      name: req.body.firstName ? req.body.firstName : req.body.fullName,
-      link: "https://apps.apple.com/app/go-trucking/id6464393709",
-      userEmail: req.body.email,
-      userPassword: randomPassword,
-      message: "Your Rider account has been created please check link to access the system",
-      subject: `${req.body.firstName ? req.body.firstName : req.body.fullName} - Login Creds.`,
+    sendVerificationOTP({
+      email: user.email,
+      name: user.fullName,
+      message: "Your OTP for email verificaion",
+      subject: `${user.firstName ? user.firstName : user.fullName} - Your One Time Password`,
+      otp: otp
     });
-
     return res
     .status(200)
-    .json({ success: true, message: "Rider Register Successfully", token: generateWebToken(user._id), data: user  });
+    .json({ success: true, message: "Partner Register Successfully", token: generateWebToken(user._id), isUserVerified: user.userVerifed, license: user.license, isTermsAccepted: user.isTermsAccepted });
   }else{
     res.status(400);
-    throw new Error("Rider Register Failed");
+    throw new Error("Partner Register Failed");
     
   }
 });
 
 
-// Verify User OTP
-// Request: PATCH
-// Route: Patch /api/users/otpVerify
-// Access: Private
-const verifyUserOTP = asyncHandler(async (req, res) => {
+// Request: POST
+// Route: POST /api/users/rider/resend-otp
+// Access: Public
+// Rider Register
+
+const resendVerificationOTP = asyncHandler(async (req, res) => {
   
-  const user = await UserModel.findById(req.user.id)
+  const user = await UserModel.findById(req.user.id);
+
 
   if (!user) {
-    res.status(400);
-    throw new Error("User not found");
+    throw new Error("User Not Found");
   }
 
-  if (user.userVerifed) {
-    res.status(400);
-    throw new Error("User Already Verify");
-  }else{
-    await UserModel.findByIdAndUpdate(req.user.id, {
-      userVerifed: true
-    });
-
-    res.status(200).json({
-      message: "User verified",
-      token: generateWebToken(user._id),
-    });
+  if(user.userVerifed){
+    throw new Error("User Already Verified");
   }
-
-
+    
+  const otp = await user.getVerifyToken();
   
+  user.save();
+
+  if(otp){
+    sendVerificationOTP({
+      email: user.email,
+      name: user.fullName,
+      message: "Your OTP for email verificaion",
+      subject: `${user.firstName ? user.firstName : user.fullName} - Your One Time Password`,
+      otp: otp
+    });
+    return res
+    .status(200)
+    .json({ success: true, message: "Verification OTP sent" });
+  }else{
+    res.status(400);
+    throw new Error("Partner Register Failed");
+    
+  }
 });
 
+
+// Request: POST
+// Route: POST /api/users/rider/verify-email
+// Access: Public
+const verifyRiderEmail = asyncHandler(async (req, res) => {
+  
+  const user = await UserModel.findById(req.user.id);
+  
+  if (!user) {
+    res.status(500);
+    throw new Error("Email Not Verify or already verified");
+  }
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'User not found' });
+  }
+
+
+  // Verify the OTP
+  const isOtpValid = user.verifyEmailOtp(req.body.otp);
+
+  if (isOtpValid) {
+    await user.save();
+    res.status(200).json({ success: true, message: 'OTP verified successfully', token: generateWebToken(user._id) });
+  } else {
+    // OTP is invalid or expired
+    res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+  }
+});
+
+
+
 // Request: PUT
-// Route: PUT /api/users/emailverify/:verifytoken
+// Route: PUT /api/users/rider/verify
 // Access: Public
 const verifyUser = asyncHandler(async (req, res) => {
   const VerifyTokens = sanitize(req.params.verifytoken);
@@ -352,25 +271,20 @@ const authUser = asyncHandler(async (req, res) => {
 const authRiderUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await UserModel.findOne({ email, userType: "rider" });
+  const user = await UserModel.findOne({ email, userType: "partner" });
 
   if (!user) {
     return res.status(400).json({
       message: "Wrong Email or Password"
     })
-    // throw new Error("Wrong Email or Password");
   }
 
-  if (user.userType !== "rider") {
+  if (user.userType !== "partner") {
     return res.status(400).json({
       message: "Wrong Email or Password"
     })
-    // throw new Error("You do not have access");
   }
 
-  if (user.userVerifed !== true) {
-    throw new Error("Please Verify your account");
-  }
 
 
   const isMatched = await user.matchPassword(password);
@@ -379,18 +293,29 @@ const authRiderUser = asyncHandler(async (req, res) => {
     return res.status(400).json({
       message: "Wrong Email or Password"
     })
-    // throw new Error("Wrong Email or Password");
   }
 
   if (!email || !password) {
     return res.status(400).json({
       message: "Please enter email and password"
     })
-    // throw new Error("Please enter email and password");
   }
 
   if (user && isMatched) {
-    // notification("User Logedin", `${email} user has been Login`, `${email}`, "users");
+
+
+    if(user.userVerifed === false){
+      const otp = await user.getVerifyToken();
+      user.save();
+      sendVerificationOTP({
+        email: user.email,
+        name: user.fullName,
+        message: "Your OTP for email verificaion",
+        subject: `${user.firstName ? user.firstName : user.fullName} - Your One Time Password`,
+        otp: otp
+      });
+    }
+    
 
     res.status(200).json({
       id: user._id,
@@ -398,6 +323,9 @@ const authRiderUser = asyncHandler(async (req, res) => {
       name: user.firstName,
       userType: user.userType,
       token: generateWebToken(user._id),
+      isUserVerified: user.userVerifed,
+      license: user.license,
+      isTermsAccepted: user.isTermsAccepted
     });
   }
 });
@@ -431,66 +359,6 @@ const getAdmins = asyncHandler(async (req, res) => {
 });
 
 
-// Request: GET Customers
-// Route: GET /api/users/customers
-// Access: Private
-const getCustomers = asyncHandler(async (req, res) => {
-
-  
-  let query = {};
-
-  console.log("req.user.userType", req.user.userType)
-  
-  if (req.user.userType === "super-admin") {
-    query = { userType: "customer" };
-  } else {
-    query = { userType: "customer", createdBy: req.user._id };
-  }
-
-  const customers = await UserModel.find(query);
-
-  if (!customers) {
-    res
-    .status(200)
-    .json({success: true, count: customers.length, customers: customers.reverse() })
-  }else{
-
-    res
-    .status(200)
-    .json({success: true, count: customers.length, customers: customers.reverse() })
-  }
-
-});
-
-
-// Request: GET Contractor
-// Route: GET /api/users/contractors
-// Access: Private
-const getContractors = asyncHandler(async (req, res) => {
-
-  
-  let query = {};
-  
-  if (req.user.userType === "super-admin") {
-    query = { userType: "contractor" };
-  } else {
-    query = { userType: "contractor", createdBy: req.user._id };
-  }
-  
-  const contractors = await UserModel.find(query);
-
-  if (!contractors) {
-    res
-    .status(200)
-    .json({success: true, count: contractors.length, contractors: contractors.reverse() })
-  }else{
-
-    res
-    .status(200)
-    .json({success: true, count: contractors.length, contractors: contractors.reverse() })
-  }
-
-});
 
 // Request: GET Riders
 // Route: GET /api/users/riders
@@ -647,14 +515,12 @@ const forgotPassword = asyncHandler(async (req, res) => {
   let user
 
   const userEmail = sanitize(req.body.email);
-  const userPhone = sanitize(req.body.phone);
+
 
 
   if(req.body.email){
    user = await UserModel.findOne({ email: userEmail });
 
-  }else if (req.body.phone){
-    user = await UserModel.findOne({ mobileNumber: userPhone });
   }
 
   if (!user) {
@@ -670,8 +536,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     user.save({ validateBeforeSave: false });
 
-    // const resetUrl = `${req.protocol}://localhost:3000/resetpassword/${resetToken}`;
-    const message = `Your reset passoword token:  ${resetToken}`;
+
 
     try {
       sendOTP({
@@ -695,7 +560,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 });
 
 // Request: Update
-// Route: PATCH /api/users/resetpassword/:resettoken
+// Route: PATCH /api/users/resetpassword
 // Access: Public
 
 const resetpassword = asyncHandler(async (req, res) => {
@@ -809,16 +674,10 @@ const updateOwnProfile = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  await UserModel.findByIdAndUpdate(req.user.id, req.body);
+  const updatedUser = await UserModel.findByIdAndUpdate(req.user.id, req.body);
 
 
-  const newUser = await UserModel.findById(req.user.id);
-
-  // notification will be added later
-  // notification("User Updates", `${user.email} profile has been updated`, "itself", "users");
-
-
-  res.status(200).json({message: "User Updated Successfully", user: newUser});
+  res.status(200).json({message: "User Updated Successfully", data: updatedUser});
 });
 
 
@@ -883,10 +742,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   const updateUser = await UserModel.findByIdAndUpdate(req.params.id, req.body);
 
 
-  const newUser = await UserModel.findById(req.params.id);
-
-
-  res.status(200).json({success: true, message: 'user successfully updated', user: newUser});
+  res.status(200).json({success: true, message: 'User successfully updated', user: updateUser});
 });
 
 
@@ -1242,19 +1098,14 @@ for (const name in planCounts) {
 
 module.exports = {
   adminRegister,
-  customerRegister,
-  getCustomers,
   DeleteUser,
   DeleteMultipleUsers,
   DeleteOwnAccount,
-  contractorRegister,
   riderRegister,
-  getContractors,
   getRiders,
   getCustomer,
   getContractor,
   sendUserInvitation,
-  verifyUserOTP,
   getCustomerByName,
   updatePassword,
 
@@ -1269,6 +1120,8 @@ module.exports = {
   getAllUsers,
   updateProfile,
   getAllRiders,
+  verifyRiderEmail,
+  resendVerificationOTP,
   
   registerFCMToken,
   updateRiderStatus,

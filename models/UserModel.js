@@ -122,8 +122,14 @@ const userSchema = new mongoose.Schema({
   },
 
   address: {
-    type: String,
-    required: false,
+    completeAddress: { type: String, required: true },
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true }
+  },
+
+  totalJobs: {
+    type: Number,
+    default: 0
   },
 
   invoiceAddress : {
@@ -159,18 +165,13 @@ const userSchema = new mongoose.Schema({
 
   userVerifed:{
     type: Boolean,
-    default: true,
+    default: false,
   },
 
   userVerifedOTP:{
     type: String,
-    default: '1234',
   },
 
-  emailVerifed: {
-    type: Boolean,
-    default: true,
-  },
 
   isUserSuspensed: {
     type: Boolean,
@@ -204,13 +205,15 @@ const userSchema = new mongoose.Schema({
     default: 0
   },
 
-  nationalid : {
+  license : {
     type: String,
     required: false,
+    default: null
   },
-  passportNo: {
-    type: String,
-    required: false,
+
+  isTermsAccepted: {
+    type: Boolean,
+    default: false
   },
 
   insuranceStartDate: {
@@ -270,10 +273,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-// userSchema.pre("save", function(next){
-//   this.profilePhoto = `https://avatars.dicebear.com/api/identicon/${this.name.split(" ")[0]+this.email}.png`
-//   next();
-// })
+
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
@@ -288,16 +288,41 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 };
 
 userSchema.methods.getVerifyToken = async function () {
-  const verifyToken = crypto.randomBytes(20).toString("hex");
+  // Generating a 4-digit OTP
+  const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-  this.emailVerifyToken = crypto
-    .createHash("sha256")
-    .update(verifyToken)
-    .digest("hex");
+  // Hashing the OTP
+  const hashedOtp = crypto
+    .createHash('sha256')
+    .update(otp)
+    .digest('hex');
 
-  this.emailVerifyExpiry = Date.now() + 10 * 60 * 1000;
+  // Saving the hashed OTP and its expiry (valid for 5 minutes)
+  this.emailVerifyToken = hashedOtp;
+  this.emailVerifyExpiry = Date.now() + 5 * 60 * 1000;
 
-  return verifyToken;
+  // The plain OTP is returned so it can be sent to the user, but not saved in plain text
+  return otp;
+};
+
+userSchema.methods.verifyEmailOtp = function (submittedOtp) {
+  const hashedSubmittedOtp = crypto
+    .createHash('sha256')
+    .update(submittedOtp)
+    .digest('hex');
+
+  // Check if the hashed OTP matches and is not expired
+  const isOtpValid = hashedSubmittedOtp === this.emailVerifyToken && Date.now() < this.emailVerifyExpiry;
+  console.log("isOtpValid", isOtpValid)
+  if (isOtpValid) {
+    // Clear the OTP fields once verified to prevent reuse
+    this.emailVerifyToken = undefined;
+    this.emailVerifyExpiry = undefined;
+    this.userVerifed = true;
+    return true;
+  } else {
+    return false;
+  }
 };
 
 userSchema.methods.getResetPasswordToken = async function () {
