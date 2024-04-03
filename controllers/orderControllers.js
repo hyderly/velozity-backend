@@ -153,8 +153,8 @@ const getAllOrders = asyncHandler(async (req, res) => {
           "deliverConfirmDoc": "$doc.deliverConfirmDoc",
           "reciverName": "$doc.reciverName",
           "deliveredDate": "$doc.deliveredDate",
-          "address": "$doc.address"
-
+          "address": "$doc.address",
+          "orderNo": "$doc.orderNo"
         }
       },
       {
