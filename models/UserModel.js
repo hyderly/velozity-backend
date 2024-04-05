@@ -221,14 +221,6 @@ const userSchema = new mongoose.Schema({
     default: false
   },
 
-  insuranceStartDate: {
-    type: Date,
-    required: false
-  },
-  insuranceEndDate: {
-    type: Date,
-    required: false
-  },
 
   insuranceDoc : {
     type: String,
@@ -239,35 +231,11 @@ const userSchema = new mongoose.Schema({
     required: false,
   },
 
-  plan: {
-    id: String,
-    name: String,
-    duration: {
-      type: String,
-      enum: ["monthly", "yearly"]
-    },
-    startDate: {
-      type: Date,
-    },
-    expireDate: {
-      type: Date,
-    },
-    amountPaid:{
-      type: String
-    },
-    amountCurrency: {
-      type: String
-    },
-    paymentMethod: {
-      type: String
-    },
-    paymentSuccess: {
-      type: Boolean,
-      default: true
-    },
-    isActive: {
-      type: Boolean
-    }
+  earning: {
+    earingThisWeek: { type: String, required: false },
+    earningThisMonth: { type: String, required: false },
+    avgDeliveryTime: { type: String, required: false },
+    distanceTraveled: { type: String, required: false },
   },
 
   emailVerifyToken: String,
