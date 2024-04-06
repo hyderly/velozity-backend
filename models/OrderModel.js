@@ -60,6 +60,9 @@ const OrderSchema = new mongoose.Schema({
       default: 'pending'
     },
     reciverName: String,
+    acceptedDate: Date,
+    rejectedDate: Date,
+    inProgressDate: Date,
     deliveredDate: Date,
     address: String,
 }, { timestamps: true });
