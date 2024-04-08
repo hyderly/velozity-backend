@@ -226,7 +226,8 @@ const getMyOrders = asyncHandler(async (req, res) => {
           "customerEmail": "$doc.customer.email",
           "status": "$doc.status",
           "deliveryStatus": "$doc.deliveryStatus",
-          "orderNo": "$doc.products.orderNo"
+          "orderNo": "$doc.orderNo",
+          "products": "$doc.products"
         }
       },
       {
