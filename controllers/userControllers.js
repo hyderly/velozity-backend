@@ -219,6 +219,7 @@ const verifyUser = asyncHandler(async (req, res) => {
   user.save();
 
   res.status(202).json({
+    success: true,
     message: "User verified",
     token: generateWebToken(user._id),
   });
@@ -255,6 +256,7 @@ const authUser = asyncHandler(async (req, res) => {
     // notification("User Logedin", `${email} user has been Login`, `${email}`, "users");
 
     res.status(200).json({
+      success: true,
       id: user._id,
       email,
       name: user.firstName,
@@ -275,12 +277,14 @@ const authRiderUser = asyncHandler(async (req, res) => {
 
   if (!user) {
     return res.status(400).json({
+      success: false,
       message: "Wrong Email or Password"
     })
   }
 
   if (user.userType !== "partner") {
     return res.status(400).json({
+      success: false,
       message: "Wrong Email or Password"
     })
   }
@@ -291,12 +295,14 @@ const authRiderUser = asyncHandler(async (req, res) => {
 
   if (!isMatched) {
     return res.status(400).json({
+      success: false,
       message: "Wrong Email or Password"
     })
   }
 
   if (!email || !password) {
     return res.status(400).json({
+      success: false,
       message: "Please enter email and password"
     })
   }
@@ -318,6 +324,7 @@ const authRiderUser = asyncHandler(async (req, res) => {
     
 
     res.status(200).json({
+      success: true,
       id: user._id,
       email,
       name: user.firstName,
@@ -541,14 +548,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
         otp: resetToken
       });
 
-      res.status(200).json({message: "Reset Password Email has been Sent"});
+      res.status(200).json({success: true, message: "Reset Password Email has been Sent"});
     } catch (error) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpiry = undefined;
 
       user.save({ validateBeforeSave: false });
 
-      res.status(400).json({message: "Email could not sent"});
+      res.status(400).json({success: false, message: "Email could not sent"});
     }
   }
 });
@@ -589,6 +596,7 @@ const resetpassword = asyncHandler(async (req, res) => {
   user.save();
 
   res.status(200).json({
+    success: true,
     message: "Password Reset Successfully",
     token: generateWebToken(user._id),
   });
@@ -671,7 +679,7 @@ const updateOwnProfile = asyncHandler(async (req, res) => {
   const updatedUser = await UserModel.findByIdAndUpdate(req.user.id, req.body);
 
 
-  res.status(200).json({message: "User Updated Successfully", data: updatedUser});
+  res.status(200).json({success: true, message: "User Updated Successfully", data: updatedUser});
 });
 
 
@@ -834,7 +842,7 @@ const registerFCMToken = asyncHandler(async (req, res) => {
 
   user.save();
 
-  res.status(200).json({message: "FCM Token Updated Successfully"});
+  res.status(200).json({success: true, message: "FCM Token Updated Successfully"});
 });
 
 
