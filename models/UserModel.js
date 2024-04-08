@@ -56,7 +56,6 @@ const userSchema = new mongoose.Schema({
   
   jobTitleOperation: {
     type: String,
-    required: false,
   },
 
   // For Finance
@@ -80,17 +79,6 @@ const userSchema = new mongoose.Schema({
   mobileNumberFinance: {
     type: String,
     // match: [/^(\+?\(61\)|\(\+?61\)|\+?61|\(0[1-9]\)|0[1-9])?( ?-?[0-9]){7,9}$/, "Please fill a valid number"]
-  },
-
-  jobTitleFinance: {
-    type: String,
-    required: false,
-  },
-
-  gender: {
-    type: String,
-    required: false,
-    enum: ['male', 'female']
   },
 
   vat: {
@@ -122,9 +110,9 @@ const userSchema = new mongoose.Schema({
   },
 
   address: {
-    completeAddress: { type: String, required: true },
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true }
+    completeAddress: { type: String},
+    lat: { type: Number},
+    lng: { type: Number}
   },
 
   totalJobs: {
@@ -159,7 +147,7 @@ const userSchema = new mongoose.Schema({
 
   userType: {
     type: String,
-    required: [true, "User type is required"],
+    // required: [true, "User type is required"], // Need to uncomment this
     enum: ['super-admin', 'admin', 'partner']
   },
 
