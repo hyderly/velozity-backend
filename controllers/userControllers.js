@@ -661,7 +661,7 @@ const getPorfile = asyncHandler(async (req, res) => {
 
   if (user) {
     res.status(200);
-    res.json(user);
+    res.json({success: true, ...user});
   }
 });
 
