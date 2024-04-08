@@ -660,8 +660,9 @@ const getPorfile = asyncHandler(async (req, res) => {
   }
 
   if (user) {
+    const userObject = user.toObject();
     res.status(200);
-    res.json({success: true, ...user});
+    res.json({success: true, ...userObject});
   }
 });
 
