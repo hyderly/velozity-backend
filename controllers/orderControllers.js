@@ -209,7 +209,8 @@ const getMyOrders = asyncHandler(async (req, res) => {
           doc: { $first: "$$ROOT" },
           totalProducts: { $sum: 1 },
           totalWeight: { $sum: "$products.weight" },
-          totalQuantity: { $sum: "$products.quantity" }
+          totalQuantity: { $sum: "$products.quantity" },
+          products: { $push: "$products" } 
         }
       },
       {
@@ -224,17 +225,19 @@ const getMyOrders = asyncHandler(async (req, res) => {
           },
           "customerName": "$doc.customer.name",
           "customerEmail": "$doc.customer.email",
+          "customerPhone": "$doc.customer.phone",
+          "customerAddress": "$doc.customer.address.completeAddress",
           "status": "$doc.status",
           "deliveryStatus": "$doc.deliveryStatus",
           "orderNo": "$doc.orderNo",
-          "products": "$doc.products"
+          "products": "$products"
         }
       },
       {
         $project: {
           "doc": 0,
           "partner_info": 0,
-          "createdBy_info": 0
+          "createdBy_info": 0,
         }
       }
     ]);
