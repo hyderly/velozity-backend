@@ -134,9 +134,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
         $addFields: {
           "partnerName": {
             $concat: [
-              { $arrayElemAt: ["$doc.partner_info.firstName", 0] },
-              " ",
-              { $arrayElemAt: ["$doc.partner_info.lastName", 0] }
+              { $arrayElemAt: ["$doc.partner_info.fullName", 0] }
             ]
           },
           "createdByName": {
