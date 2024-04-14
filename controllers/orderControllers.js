@@ -317,6 +317,160 @@ const addRemoveRunOrder = asyncHandler(async (req, res) => {
 
 
 
+// Request: GET
+// Route: GET /api/orders/picking/all
+// Access: Admin
+const getMyPickingOrders = asyncHandler(async (req, res) => {
+
+  let matchCondition = { isDeleted: false, deliveryStatus: { $eq: "picking" }  , partner: ObjectId(req.user.id) };
+
+
+  try {
+    const orders = await OrderModel.aggregate([
+      { $match: matchCondition },
+      {
+        $lookup: {
+          from: "users", // Assuming 'users' is the collection name
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "createdBy_info"
+        }
+      },
+      {
+        $lookup: {
+          from: "users", // Assuming 'users' is the collection name
+          localField: "partner",
+          foreignField: "_id",
+          as: "partner_info"
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          doc: { $first: "$$ROOT" },
+          totalProducts: { $sum: 1 },
+          totalWeight: { $sum: "$products.weight" },
+          totalQuantity: { $sum: "$products.quantity" },
+        }
+      },
+      {
+        $addFields: {
+          
+          "customerName": "$doc.customer.name",
+          "customerEmail": "$doc.customer.email",
+          "customerPhone": "$doc.customer.phone",
+          "customerAddress": "$doc.customer.address.completeAddress",
+          "status": "$doc.status",
+          "deliveryStatus": "$doc.deliveryStatus",
+          "orderNo": "$doc.orderNo",
+          "estimatedTime": "10m"
+        }
+      },
+      {
+        $project: {
+          "doc": 0,
+          "partner_info": 0,
+          "createdBy_info": 0,
+        }
+      }
+    ]);
+
+    res.status(200).json({ success: true, data: orders });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+
+// Request: GET
+// Route: GET /api/orders/progress/all
+// Access: Admin
+const getMyProgressOrders = asyncHandler(async (req, res) => {
+
+  let matchCondition = { isDeleted: false, deliveryStatus: { $eq: "in-progress" }  , partner: ObjectId(req.user.id) };
+
+
+  try {
+    const orders = await OrderModel.aggregate([
+      { $match: matchCondition },
+      {
+        $lookup: {
+          from: "users", // Assuming 'users' is the collection name
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "createdBy_info"
+        }
+      },
+      {
+        $lookup: {
+          from: "users", // Assuming 'users' is the collection name
+          localField: "partner",
+          foreignField: "_id",
+          as: "partner_info"
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          doc: { $first: "$$ROOT" },
+          totalProducts: { $sum: 1 },
+          totalWeight: { $sum: "$products.weight" },
+          totalQuantity: { $sum: "$products.quantity" },
+        }
+      },
+      {
+        $addFields: {
+          
+          "customerName": "$doc.customer.name",
+          "customerEmail": "$doc.customer.email",
+          "customerPhone": "$doc.customer.phone",
+          "customerAddress": "$doc.customer.address.completeAddress",
+          "status": "$doc.status",
+          "deliveryStatus": "$doc.deliveryStatus",
+          "orderNo": "$doc.orderNo",
+          "estimatedTime": "10m"
+        }
+      },
+      {
+        $project: {
+          "doc": 0,
+          "partner_info": 0,
+          "createdBy_info": 0,
+        }
+      }
+    ]);
+
+    res.status(200).json({ success: true, data: orders });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+
+// Request: PATCH
+// Route: PATCH /api/orders/add-to-progress/:orderId
+// Access: Admin
+const addToProgressOrder = asyncHandler(async (req, res) => {
+  try {
+    const updateResult = await OrderModel.updateMany(
+      { deliveryStatus: 'picking', partner: ObjectId(req.user.id) },
+      { $set: { deliveryStatus: 'in-progress' } }
+  );
+
+  console.log("updateResult", updateResult)
+
+  if (updateResult. nModified === 0) {
+      return res.status(404).json({ success: false, message: "No orders found with status 'picking'" });
+  }
+
+    res.status(200).json({ success: true, message: `orders updated` });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+
+
 
 
 
@@ -335,7 +489,10 @@ module.exports = {
 
   rejectOrder,
   acceptOrder,
-  addRemoveRunOrder
+  addRemoveRunOrder,
+  getMyPickingOrders,
+  getMyProgressOrders,
+  addToProgressOrder
 }
 
 

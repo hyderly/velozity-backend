@@ -15,7 +15,10 @@ const {
   getMyOrders,
   rejectOrder,
   acceptOrder,
-  addRemoveRunOrder
+  addRemoveRunOrder,
+  getMyPickingOrders,
+  getMyProgressOrders,
+  addToProgressOrder
 } = require("../controllers/orderControllers.js");
 
 
@@ -29,5 +32,8 @@ router.patch("/delete/:orderId", adminProtectRoute, deleteOrder);
 router.post("/reject/:orderId", protectRoute, rejectOrder)
 router.post("/accept/:orderId", protectRoute, acceptOrder)
 router.post("/run/:orderId", protectRoute, addRemoveRunOrder)
+router.get("/picking/all", protectRoute, getMyPickingOrders)
+router.get("/progress/all", protectRoute, getMyProgressOrders)
+router.post("/add-to-progress", protectRoute, addToProgressOrder);
 
 module.exports = router;
