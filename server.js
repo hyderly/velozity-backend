@@ -40,7 +40,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 
 app.get("/", (req, res) => {
-  res.send("App is running, version: 0.1.3");
+  res.send("App is running, version: 0.1.4");
 });
 
 if (process.env.NODE_ENV == "development") {
