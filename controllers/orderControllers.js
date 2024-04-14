@@ -176,9 +176,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
 // Access: Admin
 const getMyOrders = asyncHandler(async (req, res) => {
 
-  console.log("req.user.id", req.user.id)
-
-  let matchCondition = { isDeleted: false, partner: ObjectId(req.user.id) };
+  let matchCondition = { isDeleted: false, deliveryStatus: { $ne: "rejected" }  , partner: ObjectId(req.user.id) };
 
 
   try {
@@ -247,6 +245,77 @@ const getMyOrders = asyncHandler(async (req, res) => {
 });
 
 
+// Request: POST
+// Route: POST /api/orders/reject/:orderId
+// Access: Admin
+const rejectOrder = asyncHandler(async (req, res) => {
+  try {
+    const order = await OrderModel.findByIdAndUpdate(req.params.orderId, { deliveryStatus: 'rejected' }, {
+      new: true,
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).json({ success: true, data: order });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+
+// Request: POST
+// Route: POST /api/orders/accept/:orderId
+// Access: Admin
+const acceptOrder = asyncHandler(async (req, res) => {
+  try {
+    const order = await OrderModel.findByIdAndUpdate(req.params.orderId, { deliveryStatus: 'accepted' }, {
+      new: true,
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).json({ success: true, data: order });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+// Request: POST
+// Route: POST /api/orders/run/:orderId
+// Access: Admin
+const addRemoveRunOrder = asyncHandler(async (req, res) => {
+  try {
+    
+    const orderData = await OrderModel.findById(req.params.orderId);
+
+    const updateBody = {}
+
+    if (!orderData) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    if(orderData.deliveryStatus === 'accepted'){
+      updateBody.deliveryStatus = "picking"
+    }else{
+      updateBody.deliveryStatus = "accepted"
+    }
+
+    const order = await OrderModel.findByIdAndUpdate(req.params.orderId, updateBody, {
+      new: true,
+    });
+
+
+    res.status(200).json({ success: true, data: order });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+
 
 
 
@@ -262,7 +331,11 @@ module.exports = {
   updateOrder,
   deleteOrder,
   getAllOrders,
-  getMyOrders
+  getMyOrders,
+
+  rejectOrder,
+  acceptOrder,
+  addRemoveRunOrder
 }
 
 

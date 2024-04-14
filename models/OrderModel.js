@@ -56,10 +56,10 @@ const OrderSchema = new mongoose.Schema({
     },
     deliveryStatus: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected', 'in-progress', 'delivered'],
+      enum: ['pending', 'accepted', 'rejected', 'in-progress', 'picking', 'delivered'],
       default: 'pending'
     },
-    reciverName: String,
+    receiverName: String,
     acceptedDate: Date,
     rejectedDate: Date,
     inProgressDate: Date,

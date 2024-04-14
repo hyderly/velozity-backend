@@ -12,7 +12,10 @@ const {
   updateOrder,
   deleteOrder,
   getAllOrders,
-  getMyOrders
+  getMyOrders,
+  rejectOrder,
+  acceptOrder,
+  addRemoveRunOrder
 } = require("../controllers/orderControllers.js");
 
 
@@ -22,5 +25,9 @@ router.get("/all", protectRoute, getMyOrders)
 router.get("/:orderId", protectRoute, getOrderById);
 router.patch("/:orderId", adminProtectRoute, updateOrder);
 router.patch("/delete/:orderId", adminProtectRoute, deleteOrder);
+
+router.post("/reject/:orderId", protectRoute, rejectOrder)
+router.post("/accept/:orderId", protectRoute, acceptOrder)
+router.post("/run/:orderId", protectRoute, addRemoveRunOrder)
 
 module.exports = router;
