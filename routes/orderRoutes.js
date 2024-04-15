@@ -18,7 +18,8 @@ const {
   addRemoveRunOrder,
   getMyPickingOrders,
   getMyProgressOrders,
-  addToProgressOrder
+  addToProgressOrder,
+  deliveredOrder
 } = require("../controllers/orderControllers.js");
 
 
@@ -35,5 +36,6 @@ router.post("/run/:orderId", protectRoute, addRemoveRunOrder)
 router.get("/picking/all", protectRoute, getMyPickingOrders)
 router.get("/progress/all", protectRoute, getMyProgressOrders)
 router.post("/add-to-progress", protectRoute, addToProgressOrder);
+router.post("/delivered/:orderId", protectRoute, deliveredOrder)
 
 module.exports = router;

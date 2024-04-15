@@ -173,7 +173,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
 
 // Request: GET
 // Route: GET /api/orders/all-orders
-// Access: Admin
+// Access: PARTNER
 const getMyOrders = asyncHandler(async (req, res) => {
 
   let matchCondition = { isDeleted: false, deliveryStatus: { $ne: "rejected" }  , partner: ObjectId(req.user.id) };
@@ -247,7 +247,7 @@ const getMyOrders = asyncHandler(async (req, res) => {
 
 // Request: POST
 // Route: POST /api/orders/reject/:orderId
-// Access: Admin
+// Access: PARTNER
 const rejectOrder = asyncHandler(async (req, res) => {
   try {
     const order = await OrderModel.findByIdAndUpdate(req.params.orderId, { deliveryStatus: 'rejected' }, {
@@ -267,7 +267,7 @@ const rejectOrder = asyncHandler(async (req, res) => {
 
 // Request: POST
 // Route: POST /api/orders/accept/:orderId
-// Access: Admin
+// Access: PARTNER
 const acceptOrder = asyncHandler(async (req, res) => {
   try {
     const order = await OrderModel.findByIdAndUpdate(req.params.orderId, { deliveryStatus: 'accepted' }, {
@@ -286,7 +286,7 @@ const acceptOrder = asyncHandler(async (req, res) => {
 
 // Request: POST
 // Route: POST /api/orders/run/:orderId
-// Access: Admin
+// Access: PARTNER
 const addRemoveRunOrder = asyncHandler(async (req, res) => {
   try {
     
@@ -319,7 +319,7 @@ const addRemoveRunOrder = asyncHandler(async (req, res) => {
 
 // Request: GET
 // Route: GET /api/orders/picking/all
-// Access: Admin
+// Access: PARTNER
 const getMyPickingOrders = asyncHandler(async (req, res) => {
 
   let matchCondition = { isDeleted: false, deliveryStatus: { $eq: "picking" }  , partner: ObjectId(req.user.id) };
@@ -384,7 +384,7 @@ const getMyPickingOrders = asyncHandler(async (req, res) => {
 
 // Request: GET
 // Route: GET /api/orders/progress/all
-// Access: Admin
+// Access: PARTNER
 const getMyProgressOrders = asyncHandler(async (req, res) => {
 
   let matchCondition = { isDeleted: false, deliveryStatus: { $eq: "in-progress" }  , partner: ObjectId(req.user.id) };
@@ -424,7 +424,7 @@ const getMyProgressOrders = asyncHandler(async (req, res) => {
           "customerName": "$doc.customer.name",
           "customerEmail": "$doc.customer.email",
           "customerPhone": "$doc.customer.phone",
-          "customerAddress": "$doc.customer.address.completeAddress",
+          "customerAddress": "$doc.customer.address",
           "status": "$doc.status",
           "deliveryStatus": "$doc.deliveryStatus",
           "orderNo": "$doc.orderNo",
@@ -449,7 +449,7 @@ const getMyProgressOrders = asyncHandler(async (req, res) => {
 
 // Request: PATCH
 // Route: PATCH /api/orders/add-to-progress/:orderId
-// Access: Admin
+// Access: PARTNER
 const addToProgressOrder = asyncHandler(async (req, res) => {
   try {
     const updateResult = await OrderModel.updateMany(
@@ -457,7 +457,6 @@ const addToProgressOrder = asyncHandler(async (req, res) => {
       { $set: { deliveryStatus: 'in-progress' } }
   );
 
-  console.log("updateResult", updateResult)
 
   if (updateResult. nModified === 0) {
       return res.status(404).json({ success: false, message: "No orders found with status 'picking'" });
@@ -471,7 +470,32 @@ const addToProgressOrder = asyncHandler(async (req, res) => {
 
 
 
+// Request: POST
+// Route: POST /api/orders/delivered/:orderId
+// Access: PARTNER
+const deliveredOrder = asyncHandler(async (req, res) => {
+  try {
 
+    if(!req.body.images){
+      return res.status(404).json({ success: false, message: "Delivery Images Must be added" });
+    }
+    const order = await OrderModel.findByIdAndUpdate(req.params.orderId, {
+      status: "delivered",
+      deliveryStatus: "delivered",
+      deliverConfirmDoc: req.body.images
+    },{
+      new: true,
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    res.status(200).json({ success: true, data: "Order Delivered Success" });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
 
 
 
@@ -492,7 +516,8 @@ module.exports = {
   addRemoveRunOrder,
   getMyPickingOrders,
   getMyProgressOrders,
-  addToProgressOrder
+  addToProgressOrder,
+  deliveredOrder
 }
 
 

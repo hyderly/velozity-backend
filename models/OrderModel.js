@@ -51,7 +51,7 @@ const OrderSchema = new mongoose.Schema({
     },
     status: { 
       type: String,
-      enum: ['unassign', 'assign'],
+      enum: ['unassign', 'assign', 'delivered'],
       default: 'unassign'
     },
     deliveryStatus: {
