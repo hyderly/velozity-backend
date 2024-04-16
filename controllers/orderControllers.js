@@ -409,6 +409,7 @@ const getMyProgressOrders = asyncHandler(async (req, res) => {
           as: "partner_info"
         }
       },
+      { $unwind: "$products" },
       {
         $group: {
           _id: "$_id",
@@ -416,6 +417,7 @@ const getMyProgressOrders = asyncHandler(async (req, res) => {
           totalProducts: { $sum: 1 },
           totalWeight: { $sum: "$products.weight" },
           totalQuantity: { $sum: "$products.quantity" },
+          products: { $push: "$products" } 
         }
       },
       {
@@ -428,7 +430,8 @@ const getMyProgressOrders = asyncHandler(async (req, res) => {
           "status": "$doc.status",
           "deliveryStatus": "$doc.deliveryStatus",
           "orderNo": "$doc.orderNo",
-          "estimatedTime": "10m"
+          "estimatedTime": "10m",
+           "products": "$products"
         }
       },
       {
