@@ -176,7 +176,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
 // Access: PARTNER
 const getMyOrders = asyncHandler(async (req, res) => {
 
-  let matchCondition = { isDeleted: false, deliveryStatus: { $ne: "rejected" }  , partner: ObjectId(req.user.id) };
+  let matchCondition = { isDeleted: false, deliveryStatus: { $nin: ["rejected", "delivered"] } , partner: ObjectId(req.user.id) };
 
 
   try {
