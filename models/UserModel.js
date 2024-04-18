@@ -153,7 +153,11 @@ const userSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['available', 'not-available']
+    enum: ['available', 'not-available', 'suspend']
+  },
+
+  suspendReason: {
+    type: String,
   },
 
   userVerifed:{

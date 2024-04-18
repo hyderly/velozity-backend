@@ -51,13 +51,13 @@ const adminProtectRoute = asyncHandler(async (req, res, next) => {
         throw new Error("User not found");
       }
 
-      // Check if the user role is "super-admin"
+      // Check if the user role is "admin"
       if (user.userType === "admin") {
         req.user = await UserModel.findById(decodedToken.id);
         next();
       } else {
         res.status(403); // Forbidden
-        throw new Error("Access Denied. User is not a super-admin.");
+        throw new Error("Access Denied. User is not a admin.");
       }
     } catch (error) {
       res.status(403); // Forbidden

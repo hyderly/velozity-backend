@@ -11,10 +11,7 @@ const {
   DeleteMultipleUsers,
   riderRegister,
   getRiders,
-  getCustomer,
-  getContractor,
   sendUserInvitation,
-  getCustomerByName,
   updatePassword,
   verifyRiderEmail,
   resendVerificationOTP,
@@ -28,6 +25,7 @@ const {
   updateOwnProfile,
   getAllUsers,
   updateProfile,
+  getProfile,
   getAllRiders,
   registerFCMToken,
   updateRiderStatus,
@@ -35,7 +33,9 @@ const {
   DeleteOwnAccount,
   getAdmins,
   getRecentCustomers,
-  getPlansCount
+  getPlansCount,
+
+  getAllAvailableRiders,
 } = require("../controllers/userControllers.js");
 
 
@@ -53,10 +53,8 @@ router.delete("/:userID", protectRoute, DeleteUser);
 router.post("/delete-account", protectRoute, DeleteOwnAccount);       
 router.post("/detele-users", protectRoute, DeleteMultipleUsers);       
 router.patch("/profile/:id", protectRoute, updateProfile); 
+router.get("/profile/:id", protectRoute, getProfile); 
 router.patch("/changePassword", protectRoute, updatePassword); 
-router.get("/customer/:vat", protectRoute, getCustomer); 
-router.get("/single-customer/:name", protectRoute, getCustomerByName); 
-router.get("/contractor/:vat", protectRoute, getContractor); 
 
 // Open Requests
 router.post("/rider-register-user",  riderRegister);
@@ -82,6 +80,10 @@ router.patch("/myProfile", protectRoute, updateOwnProfile);
 router.patch("/registerFCMToken", protectRoute, registerFCMToken);    
 router.patch("/updateRiderStatus/:userId", protectRoute, updateRiderStatus);
 router.patch("/RejectRider/:userId", protectRoute, RejectRider);
+
+
+// Partners
+router.get("/riders/all", adminProtectRoute, getAllAvailableRiders);
 
 
 

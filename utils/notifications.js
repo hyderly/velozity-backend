@@ -12,25 +12,24 @@ const UserModel = require("../models/UserModel.js");
 
 const admin = require("firebase-admin");
 
-
 const firebaseConfig = {
-  apiKey: "AIzaSyBvYQH1b8Qbj-eFzSM3Rqw1jOtqB4-ciYo",
-  authDomain: "gotruckingnew-d3860.firebaseapp.com",
-  projectId: "gotruckingnew-d3860",
-  storageBucket: "gotruckingnew-d3860.appspot.com",
-  messagingSenderId: "341130354387",
-  appId: "1:341130354387:web:bca990973912fdfed23e26",
-  measurementId: "G-Y1RWV6DJ4L"
+  apiKey: "AIzaSyAl2iWGGA2I52Tc07POfYLD0nBKBrbF7NI",
+  authDomain: "velozity-a24bf.firebaseapp.com",
+  projectId: "velozity-a24bf",
+  storageBucket: "velozity-a24bf.appspot.com",
+  messagingSenderId: "633606124109",
+  appId: "1:633606124109:web:3a4dba222863ee3e0ee204",
+  measurementId: "G-TLFZEYE10R"
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const firebaseDB = getDatabase(app);  
 
-// const servercCredentials = require("./fcm.json")
+// const serverCredentials = require("./fcm.json")
 
 // admin.initializeApp({
-//     credential: admin.credential.cert(servercCredentials),
-//     databaseURL: "https://gotruckingnew-d3860-default-rtdb.firebaseio.com"
+//     credential: admin.credential.cert(serverCredentials),
+//     databaseURL: "https://velozity-a24bf-default-rtdb.firebaseio.com"
 // });
 
 

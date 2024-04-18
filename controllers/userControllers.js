@@ -390,123 +390,6 @@ const getRiders = asyncHandler(async (req, res) => {
 });
 
 
-// Request: GET Customer by vat
-// Route: GET /api/users/customer/:vat
-// Access: Private
-const getCustomer = asyncHandler(async (req, res) => {
-  
-  
-  let query = {};
-  
-  if (req.user.userType === "super-admin") {
-    query = { userType: "customer",  vat: { $regex: req.params.vat, $options: "i" } };
-  } else {
-    query = { userType: "customer", vat: { $regex: req.params.vat, $options: "i" }, createdBy: req.user._id };
-  }
-
-  const customer = await UserModel.findOne(query);
-  
-
-  console.log("customer", customer)
-
-  if (!customer) {
-    res
-    .status(400)
-    .json({success: false, message: "Customer Not found"})
-  }else{
-
-    res
-    .status(200)
-    .json({success: true, user: customer })
-  }
-
-});
-
-
-// Request: GET Customer by name
-// Route: GET /api/users/customer/:name
-// Access: Private
-const getCustomerByName = asyncHandler(async (req, res) => {
-
-  let customerQuery = {
-    userType: "customer"
-  };
-  
-  if (req.user.userType === "super-admin") {
-    if (req.params.name) {
-      customerQuery.$or = [
-        { fullName: { $regex: req.params.name, $options: "i" } },
-        { firstName: { $regex: req.params.name, $options: "i" } },
-        { lastName: { $regex: req.params.name, $options: "i" } },
-        { company: { $regex: req.params.name, $options: "i" } }
-      ];
-    }
-  } else {
-    customerQuery.createdBy = req.user._id;
-    if (req.params.name) {
-      customerQuery.$and = [
-        {
-          $or: [
-            { fullName: { $regex: req.params.name, $options: "i" } },
-            { firstName: { $regex: req.params.name, $options: "i" } },
-            { lastName: { $regex: req.params.name, $options: "i" } },
-            { company: { $regex: req.params.name, $options: "i" } }
-          ]
-        }
-      ];
-    }
-  }
-  
-  const customer = await UserModel.find(customerQuery);
-   
-
-  console.log("customer", customer)
-
-  if (!customer) {
-    res
-    .status(400)
-    .json({success: false, message: "Customer Not found"})
-  }else{
-
-    res
-    .status(200)
-    .json({success: true, user: customer })
-  }
-
-});
-
-
-// Request: GET Contractor
-// Route: GET /api/users/contractor/:vat
-// Access: Private
-const getContractor = asyncHandler(async (req, res) => {
-  
-  let query = {};
-  
-  if (req.user.userType === "super-admin") {
-    query = { userType: "contractor",  vat: { $regex: req.params.vat, $options: "i" } };
-  } else {
-    query = { userType: "contractor", vat: { $regex: req.params.vat, $options: "i" }, createdBy: req.user._id };
-  }
-
-  const contractor = await UserModel.findOne(query);
-
-  console.log("contractor", contractor)
-
-  if (!contractor) {
-    res
-    .status(400)
-    .json({success: false, message: "Contractor Not found"})
-  }else{
-
-    res
-    .status(200)
-    .json({success: true, user: contractor })
-  }
-
-});
-
-
 // Request: POST
 // Route: POST /api/users/forgotpassword
 // Access: Public
@@ -729,6 +612,25 @@ const getAllRiders = asyncHandler(async (req, res) => {
   .json({success: true, count: riders.length, riders: riders.reverse() })
 });
 
+// Request: GET
+// Route: GET /api/users/profile
+// Access: Private
+const getProfile = asyncHandler(async (req, res) => {
+  const user = await UserModel.findById(req.params.id);
+
+  if (!user) {
+    res.status(400);
+    throw new Error("User not found");
+  }else{
+
+    res.status(200).json({success: true, user: user});
+  }
+
+
+
+
+});
+
 
 // Request: Patch
 // Route: Patch /api/users/profile
@@ -742,7 +644,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   }
 
 
-  const updateUser = await UserModel.findByIdAndUpdate(req.params.id, req.body);
+  const updateUser = await UserModel.findByIdAndUpdate(req.params.id, req.body, {new: true});
 
 
   res.status(200).json({success: true, message: 'User successfully updated', user: updateUser});
@@ -1099,6 +1001,36 @@ for (const name in planCounts) {
 
 
 
+
+// Riders
+
+// Request: GET Available RIDERS
+// Route: GET /api/users/partners/available
+// Access: Private
+const getAllAvailableRiders = asyncHandler(async (req, res) => {
+  const status = req.query.status;
+  
+  const body = {userType: 'partner'}
+  if(status){
+    body.status = status
+  }
+
+  console.log("body", body)
+  
+  const riders = await UserModel.find(body);
+
+  if (!riders) {
+    res.status(400);
+    throw new Error("No User Partner Found");
+  }
+
+  res
+  .status(200)
+  .json({success: true, count: riders.length, riders: riders })
+});
+
+
+
 module.exports = {
   adminRegister,
   DeleteUser,
@@ -1106,10 +1038,7 @@ module.exports = {
   DeleteOwnAccount,
   riderRegister,
   getRiders,
-  getCustomer,
-  getContractor,
   sendUserInvitation,
-  getCustomerByName,
   updatePassword,
 
 
@@ -1122,6 +1051,7 @@ module.exports = {
   updateOwnProfile,
   getAllUsers,
   updateProfile,
+  getProfile,
   getAllRiders,
   verifyRiderEmail,
   resendVerificationOTP,
@@ -1131,5 +1061,7 @@ module.exports = {
   RejectRider,
   getAdmins,
   getRecentCustomers,
-  getPlansCount
+  getPlansCount,
+
+  getAllAvailableRiders
 }
